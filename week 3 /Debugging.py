@@ -1,14 +1,12 @@
 def PrintName():
     age = 30
-    print("Age: " + str(age))  # Convert int to str for concatenation
-
+    print("Age: " + str(age))  
 def Add(num1, num2):
-    return num1 + num2  # You probably meant addition, not multiplication
+    return num1 + num2  
 
 def SayHello():
-    name = input("What is your name? ")  # Use input() correctly with a string prompt
-    print("Hello", name)  # 'userName' is undefined, use 'name' instead
-
+    name = input("What is your name? ")  
+    print("Hello", name)  
 PrintName()
 print(Add(5, 5))
 SayHello()
