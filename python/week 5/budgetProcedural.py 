@@ -1,0 +1,5 @@
+total_budget = float(input("Enter your total budget: $"))
+
+expenses = {}
+
+
