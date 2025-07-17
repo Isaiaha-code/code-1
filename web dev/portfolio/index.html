@@ -1,58 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isaiah's portfolio</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Isaiah's Portfolio</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="header">
-        <div class="container">
-           <nav>
-            <img src="photos/logo.jpeg" class="logo">
-            <ul>
-                <li><a href="Home">Home</a></li>
-                <li><a href="Home">About</a></li>
-                <li><a href="Home">Services</a></li>
-                <li><a href="Home">Portfolio</a></li>
-                <li><a href="Home">Contact</a></li>
-            </ul>
-          </nav> 
-         
-          <div class="header-text">
-            <p>Game Designer</p>
-            <h1>Hi, I am <span>Isaiah Alomar</span></h1>
-          </div>
-        </div>
+
+  <!-- ===== HEADER SECTION ===== -->
+  <div id="header">
+    <div class="container">
+      <nav>
+        <img src="photos/logo.jpeg" class="logo" alt="Logo">
+        <ul>
+          <li><a href="#header">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#portfolio">Portfolio</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav> 
+      <div class="header-text">
+        <p>Game Designer</p>
+        <h1>Hi, I am <span>Isaiah Alomar</span></h1>
+      </div>
     </div>
+  </div>
 
-   <!--End of the header section--> 
-
-
-<div id="about">
-    <div class ="container">
+  <!-- ===== ABOUT ME SECTION ===== -->
+  <section id="about">
+    <div class="container">
       <div class="row">
         <div class="about-col-1">
-          <img src="photos/basketball.JPEG">
+          <img src="photos/basketball.jpeg" alt="Isaiah Playing Basketball">
         </div>
-
         <div class="about-col-2">
-          <h1 class ="sub-title"></h1>About Me</h1>
-          <p>I am a kid from Richmond, California, who's all about basketball and good vibes. 
-            Whether he's hooping at the local park or catching a Warriors game on TV, 
-            the court is where he feels most at home. Off the court, 
-            he loves going out—trying new food spots around the Bay, 
-            hanging with his friends, or just cruising through the city. For me, 
-            it's all about staying active, staying sharp, and enjoying life one day at a time.</p>
+          <h2 class="sub-title">About Me</h2>
+          <p>
+            I’m a kid from Richmond, California, who’s all about basketball and good vibes.
+            Whether I’m hooping at the local park or catching a Warriors game on TV, the court is where I feel most at home.
+            Off the court, I love going out—trying new food spots around the Bay, hanging with friends,
+            or just cruising through the city. For me, it's all about staying active, staying sharp,
+            and enjoying life one day at a time.
+          </p>
+
+        
+          </div>
         </div>
       </div>
     </div>
-</div>
-
-
-
-            <!--End of about me section-->
+  </section>
 
 </body>
 </html>
+<div class="tab-titles">
+  <p class="tab-links active-link" onclick="openTab('skills')">Skills</p>
+  <p class="tab-links" onclick="openTab('experience')">Experience</p>
+  <p class="tab-links" onclick="openTab('background')">Background Info</p>
+</div>
+
+<div class="tab-contents active-tab" id="skills">
+  <ul>
+    <li>🏀 Team Leadership from basketball</li>
+    <li>🎮 Game design (concept art, mechanics)</li>
+    <li>💻 Beginner-friendly HTML, CSS, and Python</li>
+    <li>🎨 Creative eye for design and layout</li>
+    <li>🧠 Fast learner and strong problem solver</li>
+  </ul>
+</div>
+
+<div class="tab-contents" id="experience">
+  <ul>
+    <li>📱 Designed UI mockups for a mobile game idea with friends</li>
+    <li>👨🏽‍🏫 Helped classmates understand basic Python in school projects</li>
+    <li>🏆 Led a rec league basketball team as point guard and motivator</li>
+    <li>🛠 Built personal websites to showcase my interests and style</li>
+  </ul>
+</div>
+
+<div class="tab-contents" id="background">
+  <ul>
+    <li>📍 From Richmond, CA — big Bay Area pride</li>
+    <li>🎓 Focused on both academics and athletics in school</li>
+    <li>🎮 Been playing and breaking down video games since I was 6</li>
+    <li>🍔 Love exploring new food spots all over the Bay with friends</li>
+    <li>🌆 Passionate about making things that represent where I'm from</li>
+  
+    <script>
+  function openTab(tabName) {
+    const tabLinks = document.querySelectorAll(".tab-links");
+    const tabContents = document.querySelectorAll(".tab-contents");
+
+    tabLinks.forEach(link => link.classList.remove("active-link"));
+    tabContents.forEach(tab => tab.classList.remove("active-tab"));
+
+    event.currentTarget.classList.add("active-link");
+    document.getElementById(tabName).classList.add("active-tab");
+  }
+</script>
+</div>
+  </ul>
+</div>
