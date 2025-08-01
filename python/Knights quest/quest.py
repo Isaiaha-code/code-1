@@ -1,72 +1,56 @@
-########## 1.3 ##########
-# Import the Pygame module to start using its functions
 import pgzrun
-# Define width and height of the game grid & size of each grid tile
-GRID_WIDTH = 18 # defines How many squares wide the game board is
-GRID_HEIGHT = 17 # defines How many squares tall the game board is
+import pgzrun
+import pgzrun
+from pgzero.actor import Actor
+from pgzero.keyboard import keys
+# Game constants
+GRID_WIDTH = 16
+GRID_HEIGHT = 12
 GRID_SIZE = 50
-GUARDMOVEINTERVAL = 0.5
-# Define the size of the game window
+GUARD_MOVE_INTERVAL = 0.5
+PLAYER_MOVE_INTERVAL = 0.1
+START_LIVES = 3
+# Window size
 WIDTH = GRID_WIDTH * GRID_SIZE
 HEIGHT = GRID_HEIGHT * GRID_SIZE
-#########################
-########## 1.5 ##########
+# The map (W=Wall, K=Key, G=Guard, P=Player, D=Door)
 MAP = [
-    "WWWWWWWWWWWWWWWWWW",
-    "W   K      G     W",
-    "W WWWW WWWWWW WW W",
-    "W W   G  K       W",
-    "W W WWWWW W WWWW W",
-    "W W W   W W  K W W",
-    "W    G W WWWW W  W",
-    "W WWW WWW W  G W W",
-    "W W     W W WW W W",
-    "W W WWW W   K  W W",
-    "W W W G WWWWWW W W",
-    "W   W   W   W    W",
-    "W WWWWWWW W WWWWWW",
-    "W     G    W     W",
-    "W   WWWW WWW WW  W",
-    "W     P      K   D",
-    "WWWWWWWWWWWWWWWWWW"
+    "WWWWWWWWWWWWWWWW",
+    "W    ``     W  W",
+    "W WWWWWWWW     W",
+    "W W KG   W WWWWW",
+    "W W WW WWW   K W",
+    "W   W   W W    W",
+    "W WWWW P WWWWW W",
+    "W     W   W    W",
+    "WWWWG WWW   W  W",
+    "W   W     WWW  W",
+    "W     G     W DW",
+    "WWWWWWWWWWWWWWWW"
 ]
-#########################
-########## 1.4 ##########
-# This function converts a grid position to screen coordinates
+# Game state variables
+player = None
+playerStartPos = (0, 0)
+keysToCollect = []
+guards = []
+gameOver = False
+lives = START_LIVES
+win = False
+# Converts grid (x, y) to screen pixel coordinates
 def GetScreenCoords(x, y):
-    return(x * GRID_SIZE, y * GRID_SIZE)
-#This draws the floor as a background
+    return (x * GRID_SIZE, y * GRID_SIZE)
+# Converts Actor's screen pos to grid pos
+def GetActorGridPos(actor):
+    return (round(actor.x / GRID_SIZE), round(actor.y / GRID_SIZE))
+# Draws the dungeon floor
 def DrawBackground():
-    for y in range (GRID_HEIGHT): #loops through each row
-        for x in range(GRID_WIDTH): #loops through each column
-            screen.blit("floor1", GetScreenCoords(x, y)) #Draws the image at the given position
-def SetupGame():
-    global player #define player as global
-    global keysToCollect #A variable to to store the keys that the player must collect
-    global gameOver
-    global guards
-    player = Actor("player", anchor=("left", "top")) #Create an actor for any moving objects player
-    keysToCollect = []
-    guards = []
-    gameOver = False
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
-            square = MAP[y][x]#Gets the character from the MAP var
-            if square == 'P':
-                player.pos = GetScreenCoords(x, y)
-            elif square == 'K':
-                #Create actor for the key
-                key = Actor("key", anchor=("left","top"))
-                #Set key pos to this space
-                key.pos = GetScreenCoords(x, y)
-                #Add key to list
-                keysToCollect.append(key)
-            elif square == 'G':
-                #Create actor for the guard
-                guard = Actor("guard", anchor=("left","top"), pos = GetScreenCoords(x, y))
-                #Add guard to list
-                guards.append(guard)
-#Draw walls
+            if x % 2 == y % 2:
+                screen.blit("floor2", GetScreenCoords(x, y))
+            else:
+                screen.blit("floor1", GetScreenCoords(x, y))
+# Draws walls and doors
 def DrawScenery():
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
@@ -75,99 +59,142 @@ def DrawScenery():
                 screen.blit("wall", GetScreenCoords(x, y))
             elif square == "D":
                 screen.blit("door", GetScreenCoords(x, y))
-def GetActorGridPos(actor): #gets the actor as an argument and finds its position on the grid
-    return (round(actor.x/GRID_SIZE)), (round(actor.y/GRID_SIZE)) #divides pixel coords by grid conversion number
-def DrawActors():#Draw entities
+# Draws the player, keys, and guards
+def DrawActors():
     player.draw()
     for key in keysToCollect:
         key.draw()
     for guard in guards:
         guard.draw()
-def draw(): #Draws everything USE 'draw', not 'Draw', 'draw' is built in
+# Draw lives and game over or win message
+def DrawUI():
+    screen.draw.text(f"Lives: {lives}", topleft=(10, 10), fontsize=36, color="white", owidth=1)
+    if gameOver:
+        center = (WIDTH / 2, HEIGHT / 2)
+        screen.draw.text("GAME OVER", midbottom=center, fontsize=GRID_SIZE, color="red", owidth=1)
+        # Draw restart button
+        restart_rect = Rect((WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50))
+        screen.draw.filled_rect(restart_rect, (50, 50, 50))
+        screen.draw.text("RESTART", center=restart_rect.center, fontsize=40, color="white")
+    if win:
+        center = (WIDTH / 2, HEIGHT / 2)
+        screen.draw.text("YOU WIN!", midbottom=center, fontsize=GRID_SIZE, color="lime", owidth=1)
+        restart_rect = Rect((WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50))
+        screen.draw.filled_rect(restart_rect, (50, 50, 50))
+        screen.draw.text("RESTART", center=restart_rect.center, fontsize=40, color="white")
+# Main draw function
+def draw():
     screen.clear()
     DrawBackground()
     DrawScenery()
     DrawActors()
-    if gameOver:
-        DrawGameOver()
+    DrawUI()
+# Setup game actors and variables
+def SetupGame():
+    global player, playerStartPos, keysToCollect, guards, gameOver, lives, win
+    player = Actor("player", anchor=("left", "top"))
+    keysToCollect = []
+    guards = []
+    gameOver = False
+    win = False
+    lives = START_LIVES
+    for y in range(GRID_HEIGHT):
+        for x in range(GRID_WIDTH):
+            square = MAP[y][x]
+            pos = GetScreenCoords(x, y)
+            if square == "P":
+                player.pos = pos
+                playerStartPos = pos  # Save starting position
+            elif square == "K":
+                key = Actor("key", anchor=("left", "top"))
+                key.pos = pos
+                keysToCollect.append(key)
+            elif square == "G":
+                guard = Actor("guard", anchor=("left", "top"))
+                guard.pos = pos
+                guards.append(guard)
+    # Reschedule guard movement timer on restart
+    clock.unschedule(MoveGuards)
+    clock.schedule_interval(MoveGuards, GUARD_MOVE_INTERVAL)
+# Handles player movement
 def MovePlayer(dx, dy):
-    global gameOver
-    if gameOver: #if the game is over
-        #stop the player from moving by breaking the function
+    global gameOver, win
+    if gameOver or win:
         return
-    (x, y) = GetActorGridPos(player) #gets the player position
-    x += dx #adds the inputted move to the current coords
-    y += dy #adds the inputted move to the current coords
-    square = MAP[y][x]#Makes sure the player doesn't go through a wall/door
-    if square == "W": # if the player tries to move into a wall, don't let the player through
+    (x, y) = GetActorGridPos(player)
+    x += dx
+    y += dy
+    if MAP[y][x] == "W":
         return
-    elif square == "D": # if the list of keys left to collect, there are keys left to collect, don't let the player through.
-        if  len(keysToCollect) > 0:
+    elif MAP[y][x] == "D":
+        if len(keysToCollect) > 0:
             return
         else:
-            gameOver = True
+            win = True
+            # sounds.win.play() removed
+            return
+    # Check for key collection
     for key in keysToCollect:
-        (keyX, keyY) = GetActorGridPos(key)#get the grid position of the current key
-        if x ==keyX and y == keyY: #Checks if the player is touching the key
+        if GetActorGridPos(key) == (x, y):
             keysToCollect.remove(key)
+            # sounds.key.play() removed
             break
-    player.pos = GetScreenCoords(x,y) #Prints the player at their new coordinate
+        animate(player, pos=GetScreenCoords(x, y),
+                duration=PLAYER_MOVE_INTERVAL)
+    # Move the player to new position
+    player.pos = GetScreenCoords(x, y)
+# Handle keyboard input
 def on_key_down(key):
-    dir = ''
+    if gameOver or win:
+        return  # Ignore key presses after game ends
     if key == keys.LEFT:
         MovePlayer(-1, 0)
-    elif key == keys.UP:
-        MovePlayer(0, -1)
     elif key == keys.RIGHT:
         MovePlayer(1, 0)
+    elif key == keys.UP:
+        MovePlayer(0, -1)
     elif key == keys.DOWN:
         MovePlayer(0, 1)
-def DrawGameOver():
-    #Calculate and store the middle pos of the screen
-    screenMiddle = (WIDTH/2, HEIGHT/2)
-    #Draw game over
-    screen.draw.text("Game Over", midbottom = screenMiddle, fontsize = GRID_SIZE*2, color="cyan", owidth=1)
+# Move a single guard toward the player
 def MoveGuard(guard):
-    global gameOver
-    if gameOver:
+    global lives, gameOver
+    if gameOver or win:
         return
-    (playerX, playerY) = GetActorGridPos(player)#Get the positions of the guard and player.
-    (guardX, guardY) = GetActorGridPos(guard)
-    #Check which direction the player is, and if there is a wall in the way
-    if playerX > guardX and MAP[guardY][guardX+1] != 'W':
+    playerX, playerY = GetActorGridPos(player)
+    guardX, guardY = GetActorGridPos(guard)
+    # Simple greedy move toward player
+    if playerX > guardX and MAP[guardY][guardX + 1] != "W":
         guardX += 1
-    if playerX < guardX and MAP[guardY][guardX-1] != 'W':
+    elif playerX < guardX and MAP[guardY][guardX - 1] != "W":
         guardX -= 1
-    if playerY > guardY and MAP[guardY+1][guardX] != 'W':
+    elif playerY > guardY and MAP[guardY + 1][guardX] != "W":
         guardY += 1
-    if playerY < guardY and MAP[guardY-1][guardX] != 'W':
+    elif playerY < guardY and MAP[guardY - 1][guardX] != "W":
         guardY -= 1
-    #update the guard position on screen
+    #Animate the guard as he moves
     guard.pos = GetScreenCoords(guardX, guardY)
-    #Check if the guard and player are in the same position
-    if guardX == playerX and guardY == playerY:
-        gameOver = True
+    # If guard catches player
+    if (playerX, playerY) == (guardX, guardY):
+        # sounds.caught.play() removed
+        lives -= 1
+        if lives <= 0:
+            gameOver = True
+        else:
+            player.pos = playerStartPos  # Reset player position
+# Move all guards
 def MoveGuards():
     for guard in guards:
         MoveGuard(guard)
+# Handle mouse clicks for restart button
+def on_mouse_down(pos):
+    if gameOver or win:
+        restart_rect = Rect((WIDTH // 2 - 100, HEIGHT // 2 + 20), (200, 50))
+        if restart_rect.collidepoint(pos):
+            SetupGame()
+# Start the game
 SetupGame()
-clock.schedule_interval(MoveGuards, GUARDMOVEINTERVAL)
+clock.schedule_interval(MoveGuards, GUARD_MOVE_INTERVAL)
 pgzrun.go()
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
 
 
 
